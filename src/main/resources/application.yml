@@ -1,0 +1,17 @@
+
+spring:
+  application:
+    name: caching-with-redis-example   #it is used by spring cloud project like eureka
+  h2:
+    console:
+      enabled: true   #H2-InMemory DB-console --> http://localhost:8080/h2-console (default path)
+      path: /h2-console
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop   # in production applications we need to keep this as "none"
+  datasource:
+    url: jdbc:h2:mem:testdb   # here testdb is name of database which is default
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
