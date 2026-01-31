@@ -4,6 +4,10 @@ import com.tthahir.dto.EmployeeDto;
 import com.tthahir.entity.Employee;
 import com.tthahir.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +20,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   private final EmployeeRepository employeeRepository;
 
   @Override
+  @Cacheable(value = "employees", key = "'all'")
   public List<EmployeeDto> getAllEmployees() {
     List<Employee> employeeList = employeeRepository.findAll();
     return employeeList.stream().map(employee -> EmployeeDto.builder()
@@ -28,6 +33,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
+  @Cacheable(value = "employees", key = "#empId")
   public EmployeeDto getEmployeeById(int empId) {
     Employee employee = employeeRepository.findById(empId).orElseThrow(() -> new RuntimeException("Employee not found"));
     return EmployeeDto.builder()
@@ -39,6 +45,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
+  @CacheEvict(value = "employees", key = "'all'")
   public EmployeeDto createEmployee(EmployeeDto employeeDto) {
     Employee employee = Employee.builder()
         .empId(employeeDto.getEmpId())
@@ -56,6 +63,8 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
+  @CachePut(value = "employee", key = "#emp.id")
+  @CacheEvict(value = "employees", key = "'all'")
   public EmployeeDto updateEmployee(int empId, EmployeeDto employeeDto) {
     Employee existingEmployee = employeeRepository.findById(empId).orElseThrow(() -> new RuntimeException("Employee not found"));
     existingEmployee.setName(employeeDto.getName());
@@ -71,6 +80,11 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
+  @Caching(evict = {
+      @CacheEvict(value = "employee", key = "#id"),
+      @CacheEvict(value = "employees", key = "'all'")
+  })
+  // 5. DELETE: Removes the specific ID from cache and clears the list cache
   public void deleteEmployee(int empId) {
     employeeRepository.deleteById(empId);
   }

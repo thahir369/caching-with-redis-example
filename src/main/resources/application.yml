@@ -2,6 +2,12 @@
 spring:
   application:
     name: caching-with-redis-example   #it is used by spring cloud project like eureka
+    data:
+      redis:
+        host: localhost
+        port: 6379
+  cache:
+    type: redis
   h2:
     console:
       enabled: true   #H2-InMemory DB-console --> http://localhost:8080/h2-console (default path)
